@@ -10,12 +10,14 @@ import android.view.KeyEvent;
 import android.widget.Button;
 import android.widget.EditText;
 
-import rx.Observable;
-import rx.android.widget.OnTextChangeEvent;
-import rx.android.widget.WidgetObservable;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.functions.Func2;
+import com.jakewharton.rxbinding2.InitialValueObservable;
+import com.jakewharton.rxbinding2.widget.RxTextView;
+
+import io.reactivex.Observable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,124 +40,131 @@ public class MainActivity extends AppCompatActivity {
                         + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
 
-        Observable<OnTextChangeEvent> usernameObservable = WidgetObservable.text(mUsernameEditText);
-        Observable<OnTextChangeEvent> emailObservable = WidgetObservable.text(mEmailEditText);
+        InitialValueObservable<CharSequence> usernameObservable = RxTextView.textChanges(mUsernameEditText);
+        InitialValueObservable<CharSequence> emailObservable = RxTextView.textChanges(mEmailEditText);
 
-//        usernameObservable .subscribe(new Action1<OnTextChangeEvent>() {
+//       usernameObservable.subscribe(new Consumer<CharSequence>() {
+//           @Override
+//           public void accept(CharSequence charSequence) throws Exception {
+//               Log.d(TAG,charSequence.toString());
+//           }
+//       });
+//        emailObservable.subscribe(new Consumer<CharSequence>() {
 //            @Override
-//            public void call(OnTextChangeEvent onTextChangeEvent) {
-//                    Log.d(TAG,onTextChangeEvent.text().toString());
-//            }
-//        });
-
-//        usernameObservable.filter(new Func1<OnTextChangeEvent, Boolean>() {
-//            @Override
-//            public Boolean call(OnTextChangeEvent onTextChangeEvent) {
-//                return onTextChangeEvent.text().length()>4;
-//            }
-//        }).subscribe(new Action1<OnTextChangeEvent>() {
-//            @Override
-//            public void call(OnTextChangeEvent onTextChangeEvent) {
-//                    Log.d(TAG,onTextChangeEvent.text().toString());
+//            public void accept(CharSequence charSequence) throws Exception {
+//                Log.d(TAG,charSequence.toString());
 //            }
 //        });
 
 
-        Observable<Boolean> isUsernameValid = usernameObservable.map(new Func1<OnTextChangeEvent, Boolean>() {
+        Observable<Boolean> isUsernameValid = usernameObservable.map(new Function<CharSequence, Boolean>() {
+
             @Override
-            public Boolean call(OnTextChangeEvent onTextChangeEvent) {
-                return onTextChangeEvent.text().length() > 4;
+            public Boolean apply(CharSequence charSequence) throws Exception {
+                return charSequence.length() > 4;
             }
         });
-        Observable<Boolean> isEmailValid = emailObservable.map(new Func1<OnTextChangeEvent, Boolean>() {
+        Observable<Boolean> isEmailValid = emailObservable.map(new Function<CharSequence, Boolean>() {
+
             @Override
-            public Boolean call(OnTextChangeEvent onTextChangeEvent) {
-                return emailPattern.matcher(onTextChangeEvent.text()).matches();
+            public Boolean apply(CharSequence charSequence) throws Exception {
+                return emailPattern.matcher(charSequence).matches();
             }
         });
-
-
-//        isUsernameValid.doOnNext(new Action1<Boolean>() {
+//
+//
+//        isUsernameValid.doOnNext(new Consumer<Boolean>() {
 //            @Override
-//            public void call(Boolean valid) {
+//            public void accept(Boolean valid) throws Exception {
 //                Log.d(TAG, "Username " + (valid ? "Valid" : "Invalid"));
 //            }
-//        }).map(new Func1<Boolean, Integer>() {
+//        }).map(new Function<Boolean, Integer>() {
+//
 //            @Override
-//            public Integer call(Boolean valid) {
+//            public Integer apply(Boolean valid) throws Exception {
 //                return valid?Color.WHITE:Color.RED;
 //            }
-//        }).subscribe(new Action1<Integer>() {
+//        }).subscribe(new Consumer<Integer>() {
+//
 //            @Override
-//            public void call(Integer color) {
+//            public void accept(Integer color) throws Exception {
 //                mUsernameEditText.setTextColor(color);
 //            }
 //        });
 //
-//        isEmailValid.doOnNext(new Action1<Boolean>() {
+//        isEmailValid.doOnNext(new Consumer<Boolean>() {
 //            @Override
-//            public void call(Boolean valid) {
+//            public void accept(Boolean valid) throws Exception {
 //                Log.d(TAG, "Email " + (valid ? "Valid" : "Invalid"));
 //            }
-//        }).map(new Func1<Boolean, Integer>() {
+//        }).map(new Function<Boolean, Integer>() {
+//
 //            @Override
-//            public Integer call(Boolean valid) {
+//            public Integer apply(Boolean valid) throws Exception {
 //                return valid?Color.WHITE:Color.RED;
 //            }
-//        }).subscribe(new Action1<Integer>() {
+//        }).subscribe(new Consumer<Integer>() {
+//
 //            @Override
-//            public void call(Integer color) {
+//            public void accept(Integer color) throws Exception {
 //                mEmailEditText.setTextColor(color);
 //            }
 //        });
+//
 
-        isUsernameValid.distinctUntilChanged().doOnNext(new Action1<Boolean>() {
+        isUsernameValid.distinctUntilChanged().doOnNext(new Consumer<Boolean>() {
             @Override
-            public void call(Boolean valid) {
+            public void accept(Boolean valid) throws Exception {
                 Log.d(TAG, "Username " + (valid ? "Valid" : "Invalid"));
             }
-        }).map(new Func1<Boolean, Integer>() {
+        }).map(new Function<Boolean, Integer>() {
+
             @Override
-            public Integer call(Boolean valid) {
+            public Integer apply(Boolean valid) throws Exception {
                 return valid?Color.WHITE:Color.RED;
             }
-        }).subscribe(new Action1<Integer>() {
+        }).subscribe(new Consumer<Integer>() {
+
             @Override
-            public void call(Integer color) {
+            public void accept(Integer color) throws Exception {
                 mUsernameEditText.setTextColor(color);
             }
         });
 
-        isEmailValid.distinctUntilChanged().doOnNext(new Action1<Boolean>() {
+        isEmailValid.distinctUntilChanged().doOnNext(new Consumer<Boolean>() {
             @Override
-            public void call(Boolean valid) {
+            public void accept(Boolean valid) throws Exception {
                 Log.d(TAG, "Email " + (valid ? "Valid" : "Invalid"));
             }
-        }).map(new Func1<Boolean, Integer>() {
+        }).map(new Function<Boolean, Integer>() {
+
             @Override
-            public Integer call(Boolean valid) {
+            public Integer apply(Boolean valid) throws Exception {
                 return valid?Color.WHITE:Color.RED;
             }
-        }).subscribe(new Action1<Integer>() {
+        }).subscribe(new Consumer<Integer>() {
+
             @Override
-            public void call(Integer color) {
+            public void accept(Integer color) throws Exception {
                 mEmailEditText.setTextColor(color);
             }
         });
 
-
-        Observable<Boolean> registerButtonObservable = Observable.combineLatest(isUsernameValid, isEmailValid, new Func2<Boolean, Boolean, Boolean>() {
+//
+//
+        Observable<Boolean> registerButtonObservable = Observable.combineLatest(isUsernameValid, isEmailValid, new BiFunction<Boolean, Boolean, Boolean>() {
             @Override
-            public Boolean call(Boolean aBoolean, Boolean aBoolean2) {
+            public Boolean apply(Boolean aBoolean, Boolean aBoolean2) throws Exception {
                 return aBoolean && aBoolean2;
             }
         });
 
-        registerButtonObservable.distinctUntilChanged().subscribe(new Action1<Boolean>() {
+        registerButtonObservable.distinctUntilChanged().subscribe(new Consumer<Boolean>() {
             @Override
-            public void call(Boolean aBoolean) {
-                    mRegisterButton.setEnabled(aBoolean);
+            public void accept(Boolean aBoolean) throws Exception {
+                mRegisterButton.setEnabled(aBoolean);
             }
+
         });
     }
 }
